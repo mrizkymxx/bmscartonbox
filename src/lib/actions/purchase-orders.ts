@@ -40,6 +40,7 @@ export async function getPurchaseOrders(): Promise<PurchaseOrder[]> {
          orderDate: (data.orderDate as Timestamp)?.toDate()?.toISOString() || new Date().toISOString(),
          status: data.status,
          items: data.items?.map((item: any) => ({ ...item, delivered: item.delivered || 0 })) || [], // Ensure items and delivered is always available
+         pdfUrl: data.pdfUrl || "",
        }
     });
 

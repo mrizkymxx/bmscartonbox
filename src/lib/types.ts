@@ -33,6 +33,7 @@ export interface PurchaseOrder {
   orderDate: string; // ISO date string
   items: OrderItem[];
   status: 'Open' | 'Completed' | 'Cancelled';
+  pdfUrl?: string; // URL to the PDF document stored in Vercel Blob
 }
 
 export interface ProductionItem extends OrderItem {

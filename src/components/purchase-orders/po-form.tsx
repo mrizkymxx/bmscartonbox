@@ -33,6 +33,7 @@ import { format } from "date-fns"
 import { useEffect, useState } from "react"
 import { getCustomers } from "@/lib/actions/customers"
 import { Separator } from "@/components/ui/separator"
+import { PDFUpload } from "./pdf-upload"
 
 const finishedSizeSchema = z.object({
   length: z.coerce.number({invalid_type_error: "Length must be a number."}).positive("L must be greater than 0."),
@@ -71,6 +72,7 @@ const formSchema = z.object({
   orderDate: z.date({ required_error: "Order date is required." }),
   status: z.enum(["Open", "Completed", "Cancelled"]),
   items: z.array(orderItemSchema).min(1, "At least one item is required in the PO."),
+  pdfUrl: z.string().optional(),
 })
 
 type POFormValues = z.infer<typeof formSchema>
@@ -293,6 +295,7 @@ export function PurchaseOrderForm({ purchaseOrder, onSuccess }: POFormProps) {
     orderDate: purchaseOrder ? new Date(purchaseOrder.orderDate) : new Date(),
     status: purchaseOrder?.status || "Open",
     items: defaultItems.length > 0 ? defaultItems : [],
+    pdfUrl: purchaseOrder?.pdfUrl || "",
   }
 
   const form = useForm<POFormValues>({
@@ -490,6 +493,26 @@ export function PurchaseOrderForm({ purchaseOrder, onSuccess }: POFormProps) {
             <FormMessage>{form.formState.errors.items?.root?.message}</FormMessage>
         </div>
 
+        <Separator />
+
+        <div>
+          <FormField
+            control={form.control}
+            name="pdfUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <PDFUpload
+                    onUpload={(url) => field.onChange(url)}
+                    currentPdfUrl={field.value}
+                    onRemove={() => field.onChange("")}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="flex justify-end gap-4">
             <FormField

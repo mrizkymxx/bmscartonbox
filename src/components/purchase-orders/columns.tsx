@@ -2,7 +2,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, ArrowUpDown } from "lucide-react"
+import { MoreHorizontal, ArrowUpDown, FileText } from "lucide-react"
 import { useState } from "react"
 import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
@@ -139,9 +139,15 @@ function ActionsCell({ po }: { po: PurchaseOrder }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          {po.pdfUrl && (
+            <DropdownMenuItem onClick={() => window.open(po.pdfUrl, '_blank')}>
+              <FileText className="mr-2 h-4 w-4" />
+              Preview PDF
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={() => setIsDeliveryDialogOpen(true)}>Create Delivery Note</DropdownMenuItem>
           <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>Edit</DropdownMenuItem>
-          <DropdownMenuItem 
+          <DropdownMenuItem
             onClick={() => setIsDeleteDialogOpen(true)}
             className="text-destructive focus:text-destructive focus:bg-destructive/10"
           >
