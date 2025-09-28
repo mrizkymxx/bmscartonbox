@@ -1,7 +1,135 @@
 
-# CartonFlow - Sistem Manajemen Produksi Karton
+<div align="center">
 
-CartonFlow adalah aplikasi web komprehensif yang dirancang untuk mengelola seluruh alur kerja operasional pada perusahaan manufaktur karton. Aplikasi ini memusatkan data dan menyederhanakan proses mulai dari manajemen pelanggan, pesanan pembelian (PO), pelacakan produksi, hingga pengiriman barang.
+# 🏭 BSMCartonBox
+
+**Sistem Manajemen Produksi Karton**
+
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black.svg)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.17-38B2AC.svg)](https://tailwindcss.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-12.3.0-orange.svg)](https://firebase.google.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+```
+ ██████╗ ███████╗███████╗███╗   ███╗ █████╗ ██████╗  ██████╗ ██╗    ██╗
+ ██╔══██╗██╔════╝██╔════╝████╗ ████║██╔══██╗██╔══██╗██╔═══██╗██║    ██║
+ ██████╔╝███████╗█████╗  ██╔████╔██║███████║██████╔╝██║   ██║██║ █╗ ██║
+ ██╔══██╗╚════██║██╔══╝  ██║╚██╔╝██║██╔══██║██╔══██╗██║   ██║██║███╗██║
+ ██████╔╝███████║███████╗██║ ╚═╝ ██║██║  ██║██████╔╝╚██████╔╝╚███╔███╔╝
+ ╚═════╝ ╚══════╝╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝  ╚══╝╚══╝
+```
+
+> Aplikasi web komprehensif untuk mengelola seluruh alur kerja operasional pada perusahaan manufaktur karton. Memusatkan data dan menyederhanakan proses mulai dari manajemen pelanggan, pesanan pembelian (PO), pelacakan produksi, hingga pengiriman barang.
+
+</div>
+
+## 🚀 Tutorial Penggunaan
+
+<div align="center">
+
+| ⚡ Quick Start | 📊 Features | 🛠️ Tech Stack |
+|:---:|:---:|:---:|
+| 🚀 **5 min setup** | 📈 **Real-time Dashboard** | ⚛️ **Next.js 15** |
+| 🔥 **Auto-calculation** | 👥 **Customer Management** | 🔥 **TypeScript** |
+| 📦 **PDF Generation** | 📋 **PO Management** | 🎨 **Tailwind CSS** |
+| 📱 **Responsive** | 🚚 **Delivery Tracking** | 🔥 **Firebase** |
+
+</div>
+
+### Prerequisites
+
+Sebelum menjalankan aplikasi ini, pastikan sistem Anda sudah terinstall:
+
+- **Node.js** (versi 18 atau lebih tinggi)
+- **npm** (biasanya sudah terinstall bersama Node.js)
+- **Git** (untuk clone repository)
+
+### 📦 Instalasi
+
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/mrizkymxx/bmscartonbox.git
+   cd bmscartonbox
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+
+   > **Catatan**: Firebase dan Vercel Blob sudah termasuk dalam dependencies dan akan terinstall otomatis. Tidak perlu install secara terpisah.
+
+3. **Setup Environment Variables**
+
+   Buat file `.env.local` di root directory dan isi dengan konfigurasi berikut:
+
+   ```env
+   # Firebase Configuration
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain_here
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id_here
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket_here
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id_here
+   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id_here
+
+   # Blob Storage (Vercel Blob)
+   BLOB_READ_WRITE_TOKEN=your_blob_token_here
+   ```
+
+   > **Catatan**: Untuk mendapatkan konfigurasi Firebase, buat project baru di [Firebase Console](https://console.firebase.google.com/) dan aktifkan Firestore Database.
+
+4. **Jalankan Development Server**
+   ```bash
+   npm run dev
+   ```
+
+   Aplikasi akan berjalan di `http://localhost:9002`
+
+### 🎯 Cara Penggunaan
+
+1. **Akses Dashboard**
+   - Buka browser dan navigasi ke `http://localhost:9002`
+   - Anda akan melihat dashboard dengan ringkasan data
+
+2. **Manajemen Pelanggan**
+   - Klik menu "Customers" di sidebar
+   - Klik tombol "Add Customer" untuk menambah pelanggan baru
+   - Isi form dengan data pelanggan (nama, alamat, kontak)
+
+3. **Membuat Purchase Order (PO)**
+   - Klik menu "Purchase Orders" di sidebar
+   - Klik tombol "Add PO"
+   - Pilih pelanggan yang sudah terdaftar
+   - Input detail item:
+     - **Ukuran Jadi (cm)**: Masukkan ukuran dalam centimeter
+     - **Jumlah**: Quantity yang dipesan
+     - **Tipe**: Pilih Box atau Layer
+   - Sistem akan **otomatis menghitung** ukuran bahan baku (mm)
+
+4. **Pelacakan Produksi**
+   - Klik menu "Production" di sidebar
+   - Lihat daftar item yang perlu diproduksi
+   - Update jumlah barang yang sudah selesai diproduksi
+
+5. **Membuat Pengiriman**
+   - Klik menu "Deliveries" di sidebar
+   - Klik tombol "Add Delivery"
+   - Pilih pelanggan
+   - Sistem akan menampilkan item yang ready to ship
+   - Buat Surat Jalan dan cetak PDF jika diperlukan
+
+6. **Menggunakan Tema**
+   - Klik avatar/profile di kanan atas
+   - Pilih "Light Mode" atau "Dark Mode" sesuai preferensi
+
+### 🛠️ Scripts yang Tersedia
+
+- `npm run dev` - Jalankan development server dengan Turbopack
+- `npm run build` - Build aplikasi untuk production
+- `npm start` - Jalankan production server
+- `npm run lint` - Periksa kode untuk error linting
+- `npm run typecheck` - Periksa TypeScript errors
 
 ## Fitur Utama
 
