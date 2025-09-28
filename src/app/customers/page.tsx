@@ -8,16 +8,21 @@ async function CustomersContent() {
   const customers = await getCustomers();
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Customer List</h2>
-          <p className="text-muted-foreground">
-            Here is a list of all registered customers.
-          </p>
-        </div>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          Customer Management
+        </h1>
+        <p className="text-base md:text-lg text-muted-foreground">
+          Manage and view all registered customers
+        </p>
       </div>
-      <DataTable data={customers} columns={columns} />
+
+      {/* Content */}
+      <div className="bg-card border border-border rounded-lg">
+        <DataTable data={customers} columns={columns} />
+      </div>
     </div>
   );
 }
@@ -25,7 +30,10 @@ async function CustomersContent() {
 
 export default async function CustomersPage() {
     return (
-        <AppLayout>
+        <AppLayout
+            title="Customers"
+            description="Customer management and information"
+        >
             <CustomersContent />
         </AppLayout>
     )

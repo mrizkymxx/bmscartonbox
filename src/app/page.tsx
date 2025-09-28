@@ -18,7 +18,7 @@ import {
 import { getPurchaseOrders } from '@/lib/actions/purchase-orders';
 import { getCustomers } from '@/lib/actions/customers';
 import { getDeliveries } from '@/lib/actions/deliveries';
-import { FileText, Truck } from 'lucide-react';
+import { FileText, Truck, TrendingUp, Package, Users, Calendar } from 'lucide-react';
 import OverviewChartWrapper from '@/components/dashboard/overview-chart.client';
 
 export const metadata = {
@@ -76,74 +76,98 @@ async function DashboardPage() {
 
 
   return (
-    <div className="flex flex-col gap-8 w-full">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+    <div className="space-y-8 md:space-y-12">
+      {/* Clean Welcome Header */}
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          Welcome back
+        </h1>
+        <p className="text-base md:text-lg text-muted-foreground">
+          Here's your production overview for today
+        </p>
       </div>
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
-        <Card className="col-span-1 lg:col-span-4">
-          <CardHeader>
-            <CardTitle>Recent Updates</CardTitle>
-            <CardDescription>
-              List of the last 5 activities (POs & Deliveries).
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Activity</TableHead>
-                  <TableHead>Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentActivities.map((activity) => (
-                  <TableRow key={activity.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {activity.type === 'PO' ? 
-                          <FileText className="h-4 w-4 text-muted-foreground" /> : 
-                          <Truck className="h-4 w-4 text-muted-foreground" />
-                        }
-                        <div>
-                          <div className="font-medium">{activity.title}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {activity.description}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(activity.date).toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'})}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-        <Card className="col-span-1 lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Production Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <OverviewChartWrapper orders={purchaseOrders} deliveries={deliveries} />
-          </CardContent>
-        </Card>
-      </div>
-       <StatsCards 
+
+      {/* Stats Cards - Notion Style */}
+      <StatsCards
         totalCustomers={customers.length}
         activePOCount={activePOCount}
         readyToShipCount={readyToShipCount}
         deliveriesThisMonth={deliveriesThisMonth}
       />
+
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+        {/* Recent Activities */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h2 className="text-lg md:text-xl font-semibold text-foreground">Recent Activities</h2>
+            <p className="text-sm text-muted-foreground">Latest updates from your workflow</p>
+          </div>
+
+          <Card className="bg-card border border-border">
+            <CardContent className="p-4 md:p-6">
+              <div className="space-y-3 md:space-y-4">
+                {recentActivities.map((activity) => (
+                  <div key={activity.id} className="flex items-center justify-between py-2 md:py-3 border-b border-border last:border-b-0">
+                    <div className="flex items-center space-x-3 min-w-0 flex-1">
+                      <div className={`w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 ${
+                        activity.type === 'PO'
+                          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600'
+                          : 'bg-green-50 dark:bg-green-900/20 text-green-600'
+                      }`}>
+                        {activity.type === 'PO' ?
+                          <FileText className="w-4 h-4" /> :
+                          <Truck className="w-4 h-4" />
+                        }
+                      </div>
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="font-medium text-foreground text-sm truncate">
+                          {activity.title}
+                        </div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {activity.description}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-3">
+                      <div className="text-xs font-medium text-foreground">
+                        {new Date(activity.date).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Production Overview */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h2 className="text-lg md:text-xl font-semibold text-foreground">Production Overview</h2>
+            <p className="text-sm text-muted-foreground">Monthly production summary</p>
+          </div>
+
+          <Card className="bg-card border border-border">
+            <CardContent className="p-4 md:p-6">
+              <OverviewChartWrapper orders={purchaseOrders} deliveries={deliveries} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default async function Dashboard() {
     return (
-        <AppLayout>
+        <AppLayout
+            title="Dashboard"
+            description="Production overview and analytics"
+        >
             <DashboardPage />
         </AppLayout>
     )

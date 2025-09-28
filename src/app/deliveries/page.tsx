@@ -8,23 +8,31 @@ async function DeliveriesContent() {
   const deliveries = await getDeliveries();
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Deliveries</h2>
-          <p className="text-muted-foreground">
-            List of all created delivery notes.
-          </p>
-        </div>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          Delivery Management
+        </h1>
+        <p className="text-base md:text-lg text-muted-foreground">
+          Track and manage all deliveries
+        </p>
       </div>
-      <DataTable data={deliveries} columns={columns} />
+
+      {/* Content */}
+      <div className="bg-card border border-border rounded-lg">
+        <DataTable data={deliveries} columns={columns} />
+      </div>
     </div>
   );
 }
 
 export default async function DeliveriesPage() {
     return (
-        <AppLayout>
+        <AppLayout
+            title="Deliveries"
+            description="Delivery management and tracking"
+        >
             <DeliveriesContent />
         </AppLayout>
     )

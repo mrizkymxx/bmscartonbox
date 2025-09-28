@@ -8,23 +8,31 @@ async function PurchaseOrdersContent() {
   const purchaseOrders = await getPurchaseOrders();
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Purchase Orders</h2>
-          <p className="text-muted-foreground">
-            Here is a list of all incoming purchase orders.
-          </p>
-        </div>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          Purchase Orders
+        </h1>
+        <p className="text-base md:text-lg text-muted-foreground">
+          Manage and track all purchase orders
+        </p>
       </div>
-      <DataTable data={purchaseOrders} columns={columns} />
+
+      {/* Content */}
+      <div className="bg-card border border-border rounded-lg">
+        <DataTable data={purchaseOrders} columns={columns} />
+      </div>
     </div>
   );
 }
 
 export default async function PurchaseOrdersPage() {
     return (
-        <AppLayout>
+        <AppLayout
+            title="Purchase Orders"
+            description="Order processing and management"
+        >
             <PurchaseOrdersContent />
         </AppLayout>
     )

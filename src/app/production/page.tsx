@@ -8,16 +8,21 @@ async function ProductionContent() {
   const productionItems = await getProductionItems();
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Production List</h2>
-          <p className="text-muted-foreground">
-            Here is a list of all items that need to be produced from active POs.
-          </p>
-        </div>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          Production Tracking
+        </h1>
+        <p className="text-base md:text-lg text-muted-foreground">
+          Monitor and manage production progress
+        </p>
       </div>
-      <DataTable data={productionItems} columns={columns} />
+
+      {/* Content */}
+      <div className="bg-card border border-border rounded-lg">
+        <DataTable data={productionItems} columns={columns} />
+      </div>
     </div>
   );
 }
@@ -25,7 +30,10 @@ async function ProductionContent() {
 
 export default async function ProductionPage() {
     return (
-        <AppLayout>
+        <AppLayout
+            title="Production"
+            description="Production tracking and management"
+        >
             <ProductionContent />
         </AppLayout>
     )
