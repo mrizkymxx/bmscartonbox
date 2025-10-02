@@ -16,7 +16,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { getPurchaseOrders } from '@/lib/actions/purchase-orders';
-import { getCustomers } from '@/lib/actions/customers';
+import { getAllCustomers } from '@/lib/actions/customers';
 import { getDeliveries } from '@/lib/actions/deliveries';
 import { FileText, Truck, TrendingUp, Package, Users, Calendar } from 'lucide-react';
 import OverviewChartWrapper from '@/components/dashboard/overview-chart.client';
@@ -35,7 +35,7 @@ type RecentActivity = {
 
 async function DashboardPage() {
   const purchaseOrders = await getPurchaseOrders();
-  const customers = await getCustomers();
+  const customers = await getAllCustomers();
   const deliveries = await getDeliveries();
 
   const activePOCount = purchaseOrders.filter(po => po.status === 'Open').length;

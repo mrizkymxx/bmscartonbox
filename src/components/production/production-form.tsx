@@ -67,7 +67,7 @@ export function ProductionForm({ item, onSuccess }: ProductionFormProps) {
     }
     
     try {
-        await updateProductionItem(item.poId, item.id, values.produced, values.status as OrderItemStatus);
+        await updateProductionItem(item.poId, item.id!, values.produced, values.status as OrderItemStatus);
         toast({
             title: "Success!",
             description: `Production progress for item "${item.name}" has been successfully updated.`,

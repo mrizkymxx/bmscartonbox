@@ -241,8 +241,8 @@ export function DataTable<TData extends Delivery, TValue>({
             {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map(row => {
                   const delivery = row.original;
-                  const ItemsCell = columns.find(c => c.accessorKey === 'items')?.cell;
-                  const DateCell = columns.find(c => c.accessorKey === 'deliveryDate')?.cell;
+                  const ItemsCell = columns.find(c => 'accessorKey' in c && c.accessorKey === 'items')?.cell;
+                  const DateCell = columns.find(c => 'accessorKey' in c && c.accessorKey === 'deliveryDate')?.cell;
                   const ActionsCell = columns.find(c => c.id === 'actions')?.cell;
                   return (
                     <Card key={row.id} data-state={row.getIsSelected() && "selected"} className="hover:shadow-md transition-shadow">

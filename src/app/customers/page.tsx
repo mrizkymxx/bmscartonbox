@@ -5,7 +5,8 @@ import { DataTable } from "@/components/customers/data-table";
 import AppLayout from "@/components/layout/app-layout";
 
 async function CustomersContent() {
-  const customers = await getCustomers();
+  const customerResult = await getCustomers();
+  const customers = customerResult.data;
 
   return (
     <div className="space-y-8">

@@ -2,15 +2,8 @@
 "use client";
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { Customer, Delivery } from './types';
-
-// Augment jsPDF with the autoTable method
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
 
 export const generateDeliveryNotePDF = async (delivery: Delivery, customer: Customer): Promise<string> => {
   const doc = new jsPDF();
@@ -101,7 +94,7 @@ export const generateDeliveryNotePDF = async (delivery: Delivery, customer: Cust
     tableRows.push(itemData);
   });
 
-  doc.autoTable({
+  autoTable(doc, {
     head: [tableColumn],
     body: tableRows,
     startY: infoYStart + infoSectionHeight + 5, 
@@ -114,7 +107,7 @@ export const generateDeliveryNotePDF = async (delivery: Delivery, customer: Cust
     }
   });
   
-  let finalY = (doc as any).lastAutoTable.finalY || 150;
+  let finalY = (doc as any).lastAutoTable?.finalY || 150;
 
   finalY = Math.max(finalY, pageHeight - 80); // Ensure footer is not too high
 

@@ -31,7 +31,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { useEffect, useState } from "react"
-import { getCustomers } from "@/lib/actions/customers"
+import { getAllCustomers } from "@/lib/actions/customers"
 import { Separator } from "@/components/ui/separator"
 import { PDFUpload } from "./pdf-upload"
 
@@ -262,7 +262,7 @@ export function PurchaseOrderForm({ purchaseOrder, onSuccess }: POFormProps) {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const fetchedCustomers = await getCustomers();
+        const fetchedCustomers = await getAllCustomers();
         setCustomers(fetchedCustomers);
       } catch (error) {
         console.error("Failed to fetch customers", error);
@@ -363,7 +363,7 @@ export function PurchaseOrderForm({ purchaseOrder, onSuccess }: POFormProps) {
         items: processedItems,
       };
       
-      await upsertPurchaseOrder(isEditMode ? purchaseOrder.id : null, poData);
+      await upsertPurchaseOrder(isEditMode ? purchaseOrder?.id || null : null, poData);
 
       toast({
         title: "Success!",

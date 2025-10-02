@@ -207,10 +207,10 @@ export function DataTable<TData extends ProductionItem, TValue>({
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => {
               const item = row.original;
-              const NameCell = columns.find(c => c.accessorKey === 'name')?.cell;
-              const CustomerCell = columns.find(c => c.accessorKey === 'customerName')?.cell;
-              const ProgressCell = columns.find(c => c.accessorKey === 'produced')?.cell;
-              const StatusCell = columns.find(c => c.accessorKey === 'status')?.cell;
+              const NameCell = columns.find(c => 'accessorKey' in c && c.accessorKey === 'name')?.cell;
+              const CustomerCell = columns.find(c => 'accessorKey' in c && c.accessorKey === 'customerName')?.cell;
+              const ProgressCell = columns.find(c => 'accessorKey' in c && c.accessorKey === 'produced')?.cell;
+              const StatusCell = columns.find(c => 'accessorKey' in c && c.accessorKey === 'status')?.cell;
 
               return (
               <Card key={row.id}>

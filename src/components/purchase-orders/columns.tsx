@@ -60,7 +60,7 @@ function ActionsCell({ po }: { po: PurchaseOrder }) {
 
   const handleDelete = async () => {
     try {
-      await deletePurchaseOrder(po.id);
+      await deletePurchaseOrder(po.id!);
       toast({
         title: "Success",
         description: "Purchase Order has been successfully deleted.",

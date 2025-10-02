@@ -67,8 +67,8 @@ export default function OverviewChartWrapper({ orders, deliveries }: OverviewCha
     const chartData = processChartData(orders, deliveries, currentYear);
     
     return (
-        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-             <ResponsiveContainer width="100%" height={350}>
+        <ChartContainer config={chartConfig} className="h-[350px] w-full">
+             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                     <XAxis

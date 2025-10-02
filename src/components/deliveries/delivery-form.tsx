@@ -29,7 +29,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { useEffect, useState, useTransition } from "react"
-import { getCustomers } from "@/lib/actions/customers"
+import { getAllCustomers } from "@/lib/actions/customers"
 import { createDelivery, getReadyToShipItems } from "@/lib/actions/deliveries"
 import { Separator } from "@/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -96,7 +96,7 @@ export function DeliveryForm({ purchaseOrder, onSuccess }: DeliveryFormProps) {
     if (isFromPO) return; // Don't fetch all customers if creating from a specific PO
     const fetchCustomers = async () => {
         try {
-            const fetchedCustomers = await getCustomers();
+            const fetchedCustomers = await getAllCustomers();
             setCustomers(fetchedCustomers);
         } catch (error) {
             toast({ title: "Error", description: "Failed to load customer data.", variant: "destructive" });
@@ -133,7 +133,7 @@ export function DeliveryForm({ purchaseOrder, onSuccess }: DeliveryFormProps) {
         if (itemToAdd) {
              const newFormItem: z.infer<typeof deliveryItemSchema> = {
                 poId: itemToAdd.poId,
-                orderItemId: itemToAdd.id,
+                orderItemId: itemToAdd.id!,
                 name: itemToAdd.name,
                 poNumber: itemToAdd.poNumber,
                 quantity: itemToAdd.availableToShip,
@@ -178,6 +178,19 @@ export function DeliveryForm({ purchaseOrder, onSuccess }: DeliveryFormProps) {
         ...values,
         customerName: selectedCustomer.name,
         deliveryDate: values.deliveryDate.toISOString(),
+        items: values.items.map(item => ({
+          poId: item.poId,
+          orderItemId: item.orderItemId,
+          name: item.name,
+          poNumber: item.poNumber,
+          type: item.type,
+          finishedSize: {
+            length: item.finishedSize?.length || 0,
+            width: item.finishedSize?.width || 0,
+            height: item.finishedSize?.height || 0,
+          },
+          quantity: item.quantity,
+        })),
       };
       
       await createDelivery(deliveryData);
@@ -314,7 +327,7 @@ export function DeliveryForm({ purchaseOrder, onSuccess }: DeliveryFormProps) {
                                     <TableCell>
                                         <Checkbox 
                                             checked={fieldIndex > -1}
-                                            onCheckedChange={(checked) => handleItemSelectionChange(item.id, !!checked)}
+                                            onCheckedChange={(checked) => handleItemSelectionChange(item.id!, !!checked)}
                                         />
                                     </TableCell>
                                     <TableCell>

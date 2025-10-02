@@ -4,7 +4,7 @@
 import { ColumnDef, FilterFn } from "@tanstack/react-table"
 import { MoreHorizontal, ArrowUpDown, Printer } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Delivery, DeliveryItem, Customer } from "@/lib/types"
+import { Delivery, DeliveryItem } from "@/lib/types"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Accordion,
@@ -47,7 +47,7 @@ import { useState, useTransition } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { deleteDelivery } from "@/lib/actions/deliveries"
-import { getCustomers } from "@/lib/actions/customers"
+// Remove unused imports and variables
 
 function ActionsCell({ delivery }: { delivery: Delivery }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -58,7 +58,7 @@ function ActionsCell({ delivery }: { delivery: Delivery }) {
 
   const handleDelete = async () => {
     try {
-      await deleteDelivery(delivery.id);
+      await deleteDelivery(delivery.id!);
       toast({
         title: "Success",
         description: "Delivery Note has been successfully deleted.",
@@ -79,17 +79,37 @@ function ActionsCell({ delivery }: { delivery: Delivery }) {
       try {
         // Dynamically import the PDF generator
         const { generateDeliveryNotePDF } = await import('@/lib/pdf');
-        const allCustomers = await getCustomers();
+        const { getAllCustomers } = await import('@/lib/actions/customers');
+        const allCustomers = await getAllCustomers();
         const customer = allCustomers.find(c => c.id === delivery.customerId);
-        if (!customer) {
+        
+        if (!customer || !customer.id) {
             throw new Error("Customer data not found for this delivery.");
         }
+        
+        // Validate delivery data before generating PDF
+        if (!delivery.items || delivery.items.length === 0) {
+            throw new Error("No items found in this delivery note.");
+        }
+        
+        // Check if all required fields are present
+        if (!delivery.deliveryNoteNumber || !delivery.deliveryDate) {
+            throw new Error("Missing required delivery information.");
+        }
+        
         const pdfDataUri = await generateDeliveryNotePDF(delivery, customer);
+        
+        if (!pdfDataUri) {
+            throw new Error("Failed to generate PDF data.");
+        }
+        
         setPdfUrl(pdfDataUri);
+        
       } catch (error: any) {
+          console.error('PDF Generation Error:', error);
           toast({
             title: "Error",
-            description: error.message || "Failed to generate PDF.",
+            description: error.message || "Failed to generate PDF. Please check the delivery data and try again.",
             variant: "destructive",
           });
       }

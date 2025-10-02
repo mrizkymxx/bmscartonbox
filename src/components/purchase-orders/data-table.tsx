@@ -209,9 +209,9 @@ export function DataTable<TData extends PurchaseOrder, TValue>({
             {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map(row => {
                   const po = row.original;
-                  const ItemsCell = columns.find(c => c.accessorKey === 'items')?.cell;
-                  const DateCell = columns.find(c => c.accessorKey === 'orderDate')?.cell;
-                  const StatusCell = columns.find(c => c.accessorKey === 'status')?.cell;
+                  const ItemsCell = columns.find(c => 'accessorKey' in c && c.accessorKey === 'items')?.cell;
+                  const DateCell = columns.find(c => 'accessorKey' in c && c.accessorKey === 'orderDate')?.cell;
+                  const StatusCell = columns.find(c => 'accessorKey' in c && c.accessorKey === 'status')?.cell;
                   const ActionsCell = columns.find(c => c.id === 'actions')?.cell;
 
                   return (
