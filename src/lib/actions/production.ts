@@ -2,27 +2,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { db } from "@/lib/firebase";
-import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc,
-  query,
-  where,
-  getDoc,
-  Timestamp,
-} from "firebase/firestore";
-import { OrderItemStatus, ProductionItem, PurchaseOrder } from "../types";
-
-const poCollection = collection(db, "purchase_orders");
+import { adminDb } from "@/lib/firebase-admin";
+import { PurchaseOrder, ProductionItem, Customer, OrderItemStatus } from "../types";
 
 // READ Production Items
 export async function getProductionItems(): Promise<ProductionItem[]> {
   try {
-    // Query all purchase orders, not just "Open" ones.
-    const q = query(poCollection);
-    const snapshot = await getDocs(q);
+    // Query all purchase orders using Firebase Admin SDK
+    const snapshot = await adminDb.collection("purchase_orders").get();
 
     if (snapshot.empty) {
       return [];
@@ -33,18 +20,20 @@ export async function getProductionItems(): Promise<ProductionItem[]> {
       const poData = doc.data();
       const po = {
         ...poData,
-        orderDate: poData.orderDate instanceof Timestamp ? poData.orderDate.toDate().toISOString() : poData.orderDate,
+        orderDate: poData.orderDate?.toDate?.()?.toISOString() || poData.orderDate || new Date().toISOString(),
       } as Omit<PurchaseOrder, "id">;
       
-      po.items.forEach((item) => {
-        productionItems.push({
-          ...item,
-          poId: doc.id,
-          poNumber: po.poNumber,
-          customerName: po.customerName,
-          orderDate: po.orderDate,
+      if (po.items) {
+        po.items.forEach((item: any) => {
+          productionItems.push({
+            ...item,
+            poId: doc.id,
+            poNumber: po.poNumber,
+            customerName: po.customerName,
+            orderDate: po.orderDate,
+          });
         });
-      });
+      }
     });
 
     // Sort items by order date, descending
@@ -62,13 +51,13 @@ export async function updateProductionItem(
   poId: string,
   itemId: string,
   newProduced: number,
-  newStatus: OrderItemStatus
+  newStatus?: OrderItemStatus
 ) {
-  const poRef = doc(db, "purchase_orders", poId);
   try {
-    const poSnapshot = await getDoc(poRef);
+    const poRef = adminDb.collection("purchase_orders").doc(poId);
+    const poSnapshot = await poRef.get();
 
-    if (!poSnapshot.exists()) {
+    if (!poSnapshot.exists) {
         throw new Error("Purchase Order not found.");
     }
 
@@ -94,8 +83,7 @@ export async function updateProductionItem(
         currentItem.status = 'In Production';
     }
 
-
-    await updateDoc(poRef, { items: updatedItems });
+    await poRef.update({ items: updatedItems });
 
     // Revalidate paths to refresh data on relevant pages
     revalidatePath("/production");

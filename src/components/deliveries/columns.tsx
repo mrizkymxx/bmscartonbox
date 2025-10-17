@@ -47,6 +47,7 @@ import { useState, useTransition } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { deleteDelivery } from "@/lib/actions/deliveries"
+import { ProtectedAction } from "@/components/protected-action"
 // Remove unused imports and variables
 
 function ActionsCell({ delivery }: { delivery: Delivery }) {
@@ -157,13 +158,17 @@ function ActionsCell({ delivery }: { delivery: Delivery }) {
              <Printer className="mr-2 h-4 w-4" />
             {isPrinting ? 'Generating...' : 'Print / Preview'}
           </DropdownMenuItem>
-          <DropdownMenuItem disabled>Edit</DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={() => setIsDeleteDialogOpen(true)}
-            className="text-destructive focus:text-destructive focus:bg-destructive/10"
-          >
-            Delete
-          </DropdownMenuItem>
+          <ProtectedAction resource="delivery" action="edit">
+            <DropdownMenuItem disabled>Edit</DropdownMenuItem>
+          </ProtectedAction>
+          <ProtectedAction resource="delivery" action="delete">
+            <DropdownMenuItem 
+              onClick={() => setIsDeleteDialogOpen(true)}
+              className="text-destructive focus:text-destructive focus:bg-destructive/10"
+            >
+              Delete
+            </DropdownMenuItem>
+          </ProtectedAction>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

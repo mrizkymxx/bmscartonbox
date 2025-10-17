@@ -45,6 +45,7 @@ import {
 import { Card, CardContent } from "../ui/card"
 import { Customer } from "@/lib/types"
 import { Skeleton } from "../ui/skeleton"
+import { ProtectedAction } from "@/components/protected-action"
 
 const CustomerForm = dynamic(() => import("./customer-form").then(mod => mod.CustomerForm), {
   loading: () => <Skeleton className="h-64 w-full" />,
@@ -132,26 +133,36 @@ export function DataTable<TData extends Customer, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="btn-primary-glow">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Customer
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-              <DialogTitle>Add New Customer</DialogTitle>
-              <DialogDescription>
-                  Fill in the customer details below. Click save when you're done.
-              </DialogDescription>
-              </DialogHeader>
-              <CustomerForm onSuccess={() => {
-                setIsCreateDialogOpen(false);
-                router.refresh();
-              }} />
-          </DialogContent>
-        </Dialog>
+        <ProtectedAction 
+          resource="customers" 
+          action="create"
+          fallback={
+            <div className="text-sm text-muted-foreground">
+              View-only mode
+            </div>
+          }
+        >
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="btn-primary-glow">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Customer
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                <DialogTitle>Add New Customer</DialogTitle>
+                <DialogDescription>
+                    Fill in the customer details below. Click save when you're done.
+                </DialogDescription>
+                </DialogHeader>
+                <CustomerForm onSuccess={() => {
+                  setIsCreateDialogOpen(false);
+                  router.refresh();
+                }} />
+            </DialogContent>
+          </Dialog>
+        </ProtectedAction>
       </div>
         
         {/* Desktop View */}

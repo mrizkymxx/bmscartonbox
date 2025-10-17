@@ -2,6 +2,7 @@
 import { Separator } from "@/components/ui/separator"
 import { AppearanceForm } from "./_components/appearance-form"
 import AppLayout from "@/components/layout/app-layout"
+import { ProtectedAction } from "@/components/protected-action"
 
 function SettingsContent() {
     return (
@@ -13,7 +14,17 @@ function SettingsContent() {
             </p>
           </div>
           <Separator />
-          <AppearanceForm />
+          <ProtectedAction 
+            resource="settings" 
+            action="edit"
+            fallback={
+              <div className="text-sm text-muted-foreground p-4 bg-muted rounded-md">
+                View-only mode: Settings can only be changed by Admin users.
+              </div>
+            }
+          >
+            <AppearanceForm />
+          </ProtectedAction>
         </div>
     )
 }

@@ -65,11 +65,12 @@ const nextConfig: NextConfig = {
   // Redirect configuration
   async redirects() {
     return [
-      {
-        source: '/',
-        destination: '/production',
-        permanent: false,
-      },
+      // Removed dashboard redirect - users should be able to access dashboard
+      // {
+      //   source: '/',
+      //   destination: '/production',
+      //   permanent: false,
+      // },
     ];
   },
 

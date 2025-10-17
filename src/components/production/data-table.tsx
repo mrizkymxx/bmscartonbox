@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/dialog"
 import { ProductionForm } from "./production-form"
 import { Pencil } from "lucide-react"
+import { ProtectedAction } from "@/components/protected-action"
 
 interface DataTableProps<TData extends ProductionItem, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -52,29 +53,44 @@ interface DataTableProps<TData extends ProductionItem, TValue> {
 
 function UpdateProductionDialog({ item, onUpdate }: { item: ProductionItem; onUpdate: () => void }) {
   const [isOpen, setIsOpen] = React.useState(false);
+  
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Pencil className="h-4 w-4" />
+    <ProtectedAction 
+      resource="production" 
+      action="update"
+      fallback={
+        <Button variant="ghost" size="icon" disabled title="No permission to update production">
+          <Pencil className="h-4 w-4 text-muted-foreground" />
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Update Production Progress</DialogTitle>
-          <DialogDescription>
-            Update the production quantity for &quot;{item.name}&quot;.
-          </DialogDescription>
-        </DialogHeader>
-        <ProductionForm item={item} onSuccess={() => {
-          setIsOpen(false);
-          onUpdate();
-        }} />
-      </DialogContent>
-    </Dialog>
+      }
+    >
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 hover:bg-accent"
+            title="Update production progress"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Update Production Progress</DialogTitle>
+            <DialogDescription>
+              Update the production quantity for &quot;{item.name}&quot; to mark items ready for delivery.
+            </DialogDescription>
+          </DialogHeader>
+          <ProductionForm item={item} onSuccess={() => {
+            setIsOpen(false);
+            onUpdate();
+          }} />
+        </DialogContent>
+      </Dialog>
+    </ProtectedAction>
   )
 }
-
 
 export function DataTable<TData extends ProductionItem, TValue>({
   columns,
@@ -219,7 +235,7 @@ export function DataTable<TData extends ProductionItem, TValue>({
                     <div className="flex-1 text-primary font-semibold">
                       {NameCell && flexRender(NameCell, { row } as any)}
                     </div>
-                     <div className="flex items-center">
+                     <div className="flex items-center gap-2">
                         {StatusCell && flexRender(StatusCell, { row } as any)}
                         <UpdateProductionDialog item={row.original} onUpdate={() => router.refresh()} />
                     </div>

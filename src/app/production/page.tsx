@@ -15,7 +15,7 @@ async function ProductionContent() {
           Production Tracking
         </h1>
         <p className="text-base md:text-lg text-muted-foreground">
-          Monitor and manage production progress
+          Monitor and update production progress for delivery preparation
         </p>
       </div>
 

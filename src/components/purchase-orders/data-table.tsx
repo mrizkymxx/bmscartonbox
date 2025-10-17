@@ -42,6 +42,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { ProtectedAction } from "@/components/protected-action"
 import { PurchaseOrder } from "@/lib/types"
 import { Card, CardContent } from "../ui/card"
 import { Skeleton } from "../ui/skeleton"
@@ -136,26 +137,36 @@ export function DataTable<TData extends PurchaseOrder, TValue>({
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="btn-primary-glow">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add PO
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-4xl">
-                  <DialogHeader>
-                  <DialogTitle>Add New Purchase Order</DialogTitle>
-                  <DialogDescription>
-                      Fill in the PO details below. Click save when you're done.
-                  </DialogDescription>
-                  </DialogHeader>
-                  <PurchaseOrderForm onSuccess={() => {
-                    setIsCreateDialogOpen(false);
-                    router.refresh();
-                  }} />
-              </DialogContent>
-            </Dialog>
+            <ProtectedAction 
+              resource="po" 
+              action="create"
+              fallback={
+                <div className="text-sm text-muted-foreground">
+                  View-only mode
+                </div>
+              }
+            >
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="btn-primary-glow">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add PO
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-4xl">
+                    <DialogHeader>
+                    <DialogTitle>Add New Purchase Order</DialogTitle>
+                    <DialogDescription>
+                        Fill in the PO details below. Click save when you're done.
+                    </DialogDescription>
+                    </DialogHeader>
+                    <PurchaseOrderForm onSuccess={() => {
+                      setIsCreateDialogOpen(false);
+                      router.refresh();
+                    }} />
+                </DialogContent>
+              </Dialog>
+            </ProtectedAction>
         </div>
 
         {/* Desktop View */}

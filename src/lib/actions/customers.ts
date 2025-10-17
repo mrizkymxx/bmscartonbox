@@ -1,35 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { db } from "@/lib/firebase";
-import {
-  collection,
-  getDocs,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  serverTimestamp,
-  query,
-  orderBy,
-  where,
-  limit,
-  startAfter,
-  QueryDocumentSnapshot,
-} from "firebase/firestore";
+import { adminDb } from "@/lib/firebase-admin";
 import { CustomerEntity, PaginatedResult, PaginationParams, Customer } from "@/lib/schemas";
 import { DatabaseError, NotFoundError, ValidationError, handleError } from "@/lib/errors";
 import { customerEntitySchema } from "@/lib/schemas";
 import { COLLECTIONS } from "@/lib/constants";
-
-const customersCollection = collection(db, COLLECTIONS.CUSTOMERS);
 
 /**
  * Fetch all customers (for select dropdowns, etc.)
  */
 export async function getAllCustomers(): Promise<CustomerEntity[]> {
   try {
-    const snapshot = await getDocs(customersCollection);
+    const snapshot = await adminDb.collection(COLLECTIONS.CUSTOMERS).get();
     
     if (snapshot.empty) {
       return [];
@@ -86,52 +69,34 @@ export async function getCustomers(
   try {
     const { page = 1, limit: pageLimit = 20, search, sortBy = "registered", sortOrder = "desc" } = params;
     
-    let q = query(
-      customersCollection,
-      orderBy(sortBy, sortOrder),
-      limit(pageLimit + 1) // Fetch one extra to check if there are more pages
-    );
-
-    // Add search filter if provided
-    if (search) {
-      q = query(q, where("name", ">=", search), where("name", "<=", search + "\uf8ff"));
+    // Get all customers first - in production, you'd want to implement proper server-side pagination
+    let queryRef: any = adminDb.collection(COLLECTIONS.CUSTOMERS);
+    
+    // Apply ordering
+    if (sortBy && sortOrder) {
+      queryRef = queryRef.orderBy(sortBy, sortOrder as any);
     }
-
-    // Handle pagination
-    if (page > 1) {
-      const prevPageQuery = query(
-        customersCollection,
-        orderBy(sortBy, sortOrder),
-        limit((page - 1) * pageLimit)
-      );
-      const prevSnapshot = await getDocs(prevPageQuery);
-      const lastDoc = prevSnapshot.docs[prevSnapshot.docs.length - 1];
-      
-      if (lastDoc) {
-        q = query(q, startAfter(lastDoc));
-      }
-    }
-
-    const snapshot = await getDocs(q);
-    const docs = snapshot.docs;
-    const hasNextPage = docs.length > pageLimit;
-    const actualDocs = hasNextPage ? docs.slice(0, pageLimit) : docs;
-
-    const customers: CustomerEntity[] = actualDocs.map((doc) => {
+    
+    const snapshot = await queryRef.get();
+    let allCustomers = snapshot.docs.map((doc: any) => {
       const data = doc.data();
       
       // Handle different date formats that might be in Firebase
       let registeredDate = new Date().toISOString();
       if (data.registered) {
-        if (data.registered.toDate) {
-          // Firestore Timestamp
-          registeredDate = data.registered.toDate().toISOString();
-        } else if (data.registered instanceof Date) {
-          // JavaScript Date
-          registeredDate = data.registered.toISOString();
-        } else if (typeof data.registered === 'string') {
-          // String date
-          registeredDate = new Date(data.registered).toISOString();
+        try {
+          if (data.registered.toDate) {
+            // Firestore Timestamp
+            registeredDate = data.registered.toDate().toISOString();
+          } else if (data.registered instanceof Date) {
+            // JavaScript Date
+            registeredDate = data.registered.toISOString();
+          } else if (typeof data.registered === 'string') {
+            // String date
+            registeredDate = new Date(data.registered).toISOString();
+          }
+        } catch (dateError) {
+          console.warn('Date conversion error for customer', doc.id, dateError);
         }
       }
       
@@ -145,9 +110,20 @@ export async function getCustomers(
       };
     });
 
-    // Get total count for pagination (this could be optimized with a separate counter)
-    const totalSnapshot = await getDocs(collection(db, COLLECTIONS.CUSTOMERS));
-    const total = totalSnapshot.size;
+    // Apply search filter client-side (in production, you'd want server-side filtering)
+    if (search) {
+      const searchLower = search.toLowerCase();
+      allCustomers = allCustomers.filter((customer: any) => 
+        customer.name.toLowerCase().includes(searchLower) ||
+        customer.email.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply pagination client-side
+    const total = allCustomers.length;
+    const startIndex = (page - 1) * pageLimit;
+    const endIndex = startIndex + pageLimit;
+    const customers = allCustomers.slice(startIndex, endIndex);
 
     return {
       data: customers,
@@ -171,32 +147,35 @@ export async function getCustomerById(id: string): Promise<CustomerEntity> {
   try {
     if (!id) throw new ValidationError("Customer ID is required");
 
-    const customerDoc = doc(db, COLLECTIONS.CUSTOMERS, id);
-    const snapshot = await getDocs(query(collection(db, COLLECTIONS.CUSTOMERS), where("__name__", "==", id)));
+    const customerDoc = await adminDb.collection(COLLECTIONS.CUSTOMERS).doc(id).get();
     
-    if (snapshot.empty) {
+    if (!customerDoc.exists) {
       throw new NotFoundError("Customer");
     }
 
-    const data = snapshot.docs[0].data();
+    const data = customerDoc.data()!;
     
     // Handle different date formats that might be in Firebase
     let registeredDate = new Date().toISOString();
     if (data.registered) {
-      if (data.registered.toDate) {
-        // Firestore Timestamp
-        registeredDate = data.registered.toDate().toISOString();
-      } else if (data.registered instanceof Date) {
-        // JavaScript Date
-        registeredDate = data.registered.toISOString();
-      } else if (typeof data.registered === 'string') {
-        // String date
-        registeredDate = new Date(data.registered).toISOString();
+      try {
+        if (data.registered.toDate) {
+          // Firestore Timestamp
+          registeredDate = data.registered.toDate().toISOString();
+        } else if (data.registered instanceof Date) {
+          // JavaScript Date
+          registeredDate = data.registered.toISOString();
+        } else if (typeof data.registered === 'string') {
+          // String date
+          registeredDate = new Date(data.registered).toISOString();
+        }
+      } catch (dateError) {
+        console.warn('Date conversion error for customer', id, dateError);
       }
     }
     
     return {
-      id: snapshot.docs[0].id,
+      id: customerDoc.id,
       name: data.name || '',
       email: data.email || '',
       phone: data.phone || '',
@@ -219,13 +198,12 @@ export async function upsertCustomer(
   try {
     if (id) {
       // Update existing customer
-      const customerDoc = doc(db, COLLECTIONS.CUSTOMERS, id);
-      await updateDoc(customerDoc, data);
+      await adminDb.collection(COLLECTIONS.CUSTOMERS).doc(id).update(data);
     } else {
       // Create new customer
-      await addDoc(customersCollection, {
+      await adminDb.collection(COLLECTIONS.CUSTOMERS).add({
         ...data,
-        registered: serverTimestamp(),
+        registered: new Date(),
       });
     }
     revalidatePath("/customers");
@@ -238,8 +216,7 @@ export async function upsertCustomer(
 // DELETE
 export async function deleteCustomer(id: string) {
   try {
-    const customerDoc = doc(db, "customers", id);
-    await deleteDoc(customerDoc);
+    await adminDb.collection("customers").doc(id).delete();
     revalidatePath("/customers");
   } catch (error) {
     console.error("Error deleting customer: ", error);

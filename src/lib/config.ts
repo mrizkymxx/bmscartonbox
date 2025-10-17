@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { fallbackConfig } from './fallback-config';
 
 // Environment variables schema for validation
 const envSchema = z.object({
@@ -18,33 +19,49 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
 });
 
-// Validate environment variables
-const env = envSchema.parse(process.env);
+// Check if all required environment variables are present
+const hasAllEnvVars = !!(
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
+  process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN &&
+  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID &&
+  process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET &&
+  process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID &&
+  process.env.NEXT_PUBLIC_FIREBASE_APP_ID &&
+  process.env.BLOB_READ_WRITE_TOKEN
+);
 
-// Export validated environment variables
-export const config = {
-  firebase: {
-    apiKey: env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  },
-  blob: {
-    token: env.BLOB_READ_WRITE_TOKEN,
-  },
-  app: {
-    env: env.NODE_ENV,
-    url: env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002',
-    isDevelopment: env.NODE_ENV === 'development',
-    isProduction: env.NODE_ENV === 'production',
-  },
-  limits: {
-    maxFileSize: 10 * 1024 * 1024, // 10MB
-    maxItemsPerOrder: 50,
-    maxOrdersPerPage: 20,
-  },
-} as const;
+console.log('🔍 Environment Variables Status:');
+console.log('Has all env vars:', hasAllEnvVars);
+console.log('Using fallback config:', !hasAllEnvVars);
 
-export default config;
+let config;
+
+if (hasAllEnvVars) {
+  // Use environment variables
+  console.log('✅ Using environment variables');
+  const env = envSchema.parse(process.env);
+  
+  config = {
+    firebase: {
+      apiKey: env.NEXT_PUBLIC_FIREBASE_API_KEY,
+      authDomain: env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      projectId: env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      storageBucket: env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      appId: env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    },
+    blob: {
+      readWriteToken: env.BLOB_READ_WRITE_TOKEN,
+    },
+    app: {
+      env: env.NODE_ENV,
+      url: env.NEXT_PUBLIC_APP_URL,
+    },
+  };
+} else {
+  // Use fallback configuration
+  console.log('⚠️ Using fallback configuration (env vars not found)');
+  config = fallbackConfig;
+}
+
+export { config };

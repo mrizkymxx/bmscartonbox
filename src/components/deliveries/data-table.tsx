@@ -42,6 +42,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { ProtectedAction } from "@/components/protected-action"
 import { Delivery } from "@/lib/types"
 import { Card, CardContent } from "../ui/card"
 import { Skeleton } from "../ui/skeleton"
@@ -168,26 +169,36 @@ export function DataTable<TData extends Delivery, TValue>({
                 </DropdownMenuContent>
               </DropdownMenu>
            </div>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="btn-primary-glow">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Create Delivery Note
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-4xl">
-                  <DialogHeader>
-                  <DialogTitle>Create New Delivery Note</DialogTitle>
-                  <DialogDescription>
-                      Fill in the delivery note details below. Available items are those with 'Ready to Ship' status.
-                  </DialogDescription>
-                  </DialogHeader>
-                  <DeliveryForm onSuccess={() => {
-                    setIsCreateDialogOpen(false);
-                    router.refresh();
-                  }} />
-              </DialogContent>
-            </Dialog>
+            <ProtectedAction 
+              resource="delivery" 
+              action="create"
+              fallback={
+                <div className="text-sm text-muted-foreground">
+                  View-only mode
+                </div>
+              }
+            >
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="btn-primary-glow">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create Delivery Note
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-4xl">
+                    <DialogHeader>
+                    <DialogTitle>Create New Delivery Note</DialogTitle>
+                    <DialogDescription>
+                        Fill in the delivery note details below. Available items are those with 'Ready to Ship' status.
+                    </DialogDescription>
+                    </DialogHeader>
+                    <DeliveryForm onSuccess={() => {
+                      setIsCreateDialogOpen(false);
+                      router.refresh();
+                    }} />
+                </DialogContent>
+              </Dialog>
+            </ProtectedAction>
         </div>
         
         {/* Desktop View */}

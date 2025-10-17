@@ -39,6 +39,7 @@ import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Skeleton } from "../ui/skeleton"
+import { ProtectedAction } from "@/components/protected-action"
 
 const PurchaseOrderForm = dynamic(() => import("./po-form").then(mod => mod.PurchaseOrderForm), {
   loading: () => <Skeleton className="h-96 w-full" />,
@@ -145,14 +146,20 @@ function ActionsCell({ po }: { po: PurchaseOrder }) {
               Preview PDF
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={() => setIsDeliveryDialogOpen(true)}>Create Delivery Note</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>Edit</DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setIsDeleteDialogOpen(true)}
-            className="text-destructive focus:text-destructive focus:bg-destructive/10"
-          >
-            Delete
-          </DropdownMenuItem>
+          <ProtectedAction resource="delivery" action="create">
+            <DropdownMenuItem onClick={() => setIsDeliveryDialogOpen(true)}>Create Delivery Note</DropdownMenuItem>
+          </ProtectedAction>
+          <ProtectedAction resource="po" action="edit">
+            <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>Edit</DropdownMenuItem>
+          </ProtectedAction>
+          <ProtectedAction resource="po" action="delete">
+            <DropdownMenuItem
+              onClick={() => setIsDeleteDialogOpen(true)}
+              className="text-destructive focus:text-destructive focus:bg-destructive/10"
+            >
+              Delete
+            </DropdownMenuItem>
+          </ProtectedAction>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

@@ -2,28 +2,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { db } from "@/lib/firebase";
-import {
-  collection,
-  getDocs,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  serverTimestamp,
-  query,
-  orderBy,
-  Timestamp,
-} from "firebase/firestore";
+import { adminDb } from "@/lib/firebase-admin";
 import { PurchaseOrder } from "../types";
-
-const poCollection = collection(db, "purchase_orders");
 
 // READ
 export async function getPurchaseOrders(): Promise<PurchaseOrder[]> {
   try {
-    const q = query(poCollection, orderBy("orderDate", "desc"));
-    const snapshot = await getDocs(q);
+    const snapshot = await adminDb.collection("purchase_orders")
+      .orderBy("orderDate", "desc")
+      .get();
     
     if (snapshot.empty) {
       console.log("No purchase orders found.");
@@ -37,7 +24,7 @@ export async function getPurchaseOrders(): Promise<PurchaseOrder[]> {
          poNumber: data.poNumber,
          customerName: data.customerName,
          customerId: data.customerId,
-         orderDate: (data.orderDate as Timestamp)?.toDate()?.toISOString() || new Date().toISOString(),
+         orderDate: data.orderDate?.toDate?.()?.toISOString() || data.orderDate || new Date().toISOString(),
          status: data.status,
          items: data.items?.map((item: any) => ({ ...item, delivered: item.delivered || 0 })) || [], // Ensure items and delivered is always available
          pdfUrl: data.pdfUrl || "",
@@ -61,16 +48,15 @@ export async function upsertPurchaseOrder(
     // Firestore expects a Date object for Timestamp fields
     const dataToSave: any = {
       ...restData,
-      orderDate: orderDate ? new Date(orderDate) : serverTimestamp(),
+      orderDate: orderDate ? new Date(orderDate) : new Date(),
     };
 
     if (id) {
       // Update existing PO
-      const poDoc = doc(db, "purchase_orders", id);
-      await updateDoc(poDoc, dataToSave);
+      await adminDb.collection("purchase_orders").doc(id).update(dataToSave);
     } else {
       // Create new PO
-      await addDoc(poCollection, dataToSave);
+      await adminDb.collection("purchase_orders").add(dataToSave);
     }
     revalidatePath("/purchase-orders");
     revalidatePath("/"); // Also revalidate dashboard for recent POs
@@ -84,8 +70,7 @@ export async function upsertPurchaseOrder(
 // DELETE
 export async function deletePurchaseOrder(id: string) {
   try {
-    const poDoc = doc(db, "purchase_orders", id);
-    await deleteDoc(poDoc);
+    await adminDb.collection("purchase_orders").doc(id).delete();
     revalidatePath("/purchase-orders");
     revalidatePath("/");
     revalidatePath("/production");

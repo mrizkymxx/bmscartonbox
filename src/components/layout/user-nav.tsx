@@ -12,21 +12,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
+import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 interface UserNavProps {
-  name: string | null;
-  email: string | null;
+  name?: string | null;
+  email?: string | null;
 }
 
-export function UserNav({ name, email }: UserNavProps) {
-  const router = useRouter();
+export function UserNav({ name: propName, email: propEmail }: UserNavProps) {
+  const { user, logout } = useAuth();
   
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    router.push("/login");
-  };
+  // Use auth context user data if available, fallback to props
+  const name = user?.name || propName;
+  const email = user?.email || propEmail;
+  const role = user?.role;
   
   const getInitials = (name: string | null | undefined) => {
     if (!name) return 'A';
@@ -49,11 +50,16 @@ export function UserNav({ name, email }: UserNavProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{name}</p>
+          <div className="flex flex-col space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium leading-none">{name}</p>
+              <Badge variant={role === 'admin' ? 'default' : 'secondary'} className="text-xs">
+                {role?.toUpperCase()}
+              </Badge>
+            </div>
             {email && (
               <p className="text-xs leading-none text-muted-foreground">
-              {email}
+                {email}
               </p>
             )}
           </div>
@@ -67,7 +73,7 @@ export function UserNav({ name, email }: UserNavProps) {
           </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onClick={logout}>
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

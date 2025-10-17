@@ -37,6 +37,7 @@ import { deleteCustomer } from "@/lib/actions/customers"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { Skeleton } from "../ui/skeleton"
+import { ProtectedAction } from "@/components/protected-action"
 
 const CustomerForm = dynamic(() => import("./customer-form").then(mod => mod.CustomerForm), {
   loading: () => <Skeleton className="h-64 w-full" />,
@@ -115,13 +116,17 @@ function ActionsCell({ customer }: { customer: Customer }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>Edit</DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={() => setIsDeleteDialogOpen(true)}
-            className="text-destructive focus:text-destructive focus:bg-destructive/10"
-          >
-            Delete
-          </DropdownMenuItem>
+          <ProtectedAction resource="customers" action="edit">
+            <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>Edit</DropdownMenuItem>
+          </ProtectedAction>
+          <ProtectedAction resource="customers" action="delete">
+            <DropdownMenuItem 
+              onClick={() => setIsDeleteDialogOpen(true)}
+              className="text-destructive focus:text-destructive focus:bg-destructive/10"
+            >
+              Delete
+            </DropdownMenuItem>
+          </ProtectedAction>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

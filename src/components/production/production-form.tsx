@@ -96,6 +96,14 @@ export function ProductionForm({ item, onSuccess }: ProductionFormProps) {
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>
+              <div className="text-xs text-muted-foreground mt-1">
+                Total Order: {item.total} pcs | Already Delivered: {item.delivered || 0} pcs
+                {item.produced > (item.delivered || 0) && (
+                  <div className="text-green-600 font-medium">
+                    Ready to Ship: {item.produced - (item.delivered || 0)} pcs
+                  </div>
+                )}
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -118,6 +126,9 @@ export function ProductionForm({ item, onSuccess }: ProductionFormProps) {
                         <SelectItem value="Ready to Ship">Ready to Ship</SelectItem>
                     </SelectContent>
                   </Select>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Status affects availability for deliveries. Only "Ready to Ship" items can be delivered.
+                  </div>
                 <FormMessage />
               </FormItem>
           )}

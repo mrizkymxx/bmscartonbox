@@ -3,7 +3,8 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
-import { AuthProvider } from '@/components/auth-provider';
+import { AuthProvider } from '@/contexts/auth-context';
+import { AuthGuard } from '@/components/auth-guard';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({ 
@@ -31,7 +32,9 @@ export default async function RootLayout({
               disableTransitionOnChange
             >
             <AuthProvider>
-              {children}
+              <AuthGuard>
+                {children}
+              </AuthGuard>
             </AuthProvider>
             <Toaster />
           </ThemeProvider>
