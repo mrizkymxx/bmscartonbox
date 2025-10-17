@@ -15,7 +15,15 @@ import {
 import { MoreHorizontal, Edit, Trash2, UserCheck, UserX, Mail } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
-export const columns: ColumnDef<UserProfile>[] = [
+// This will be passed from the parent component
+interface ColumnsContext {
+  onEditUser: (user: UserProfile) => void;
+  onDeleteUser: (user: UserProfile) => void;
+  onSendPasswordReset: (email: string) => void;
+  onToggleUserStatus: (user: UserProfile) => void;
+}
+
+export const createColumns = (context: ColumnsContext): ColumnDef<UserProfile>[] => [
   {
     accessorKey: "email",
     header: "Email",
@@ -109,16 +117,16 @@ export const columns: ColumnDef<UserProfile>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => context.onEditUser(user)}>
               <Edit className="mr-2 h-4 w-4" />
               Edit User
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => context.onSendPasswordReset(user.email)}>
               <Mail className="mr-2 h-4 w-4" />
               Send Password Reset
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => context.onToggleUserStatus(user)}>
               {user.disabled ? (
                 <>
                   <UserCheck className="mr-2 h-4 w-4" />
@@ -131,7 +139,10 @@ export const columns: ColumnDef<UserProfile>[] = [
                 </>
               )}
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem 
+              className="text-destructive"
+              onClick={() => context.onDeleteUser(user)}
+            >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete User
             </DropdownMenuItem>

@@ -133,7 +133,7 @@ export async function getUsers(pageSize: number = 10, nextPageToken?: string) {
           });
         }
       } catch (docError) {
-        logger.warn('Error fetching profile for user ' + userRecord.uid + ': ' + (docError as any).message);
+                logger.warn('Error fetching profile for user ' + userRecord.uid + ': ' + (docError as any).message);
         // Add user even if profile is missing
         userProfiles.push({
           uid: userRecord.uid,
@@ -156,7 +156,7 @@ export async function getUsers(pageSize: number = 10, nextPageToken?: string) {
     };
 
   } catch (error: any) {
-    logger.error('Error fetching users: ' + (error.message || error));
+        logger.error('Error fetching users: ' + (error.message || error));
     throw new DatabaseError('Failed to fetch users');
   }
 }
@@ -166,7 +166,7 @@ export async function getUsers(pageSize: number = 10, nextPageToken?: string) {
  */
 export async function updateUser(uid: string, updateData: UpdateUserData) {
   try {
-    logger.info('Updating user: ' + uid);
+        logger.info('Updating user: ' + uid);
 
     // Update Firebase Auth user
     const authUpdateData: any = {};
@@ -202,7 +202,7 @@ export async function updateUser(uid: string, updateData: UpdateUserData) {
     };
 
   } catch (error: any) {
-    logger.error('Error updating user: ' + (error.message || error));
+        logger.error('Error updating user: ' + (error.message || error));
     
     let message = 'Failed to update user';
     if (error.code === 'auth/user-not-found') {
@@ -218,7 +218,7 @@ export async function updateUser(uid: string, updateData: UpdateUserData) {
  */
 export async function deleteUser(uid: string) {
   try {
-    logger.info('Deleting user: ' + uid);
+        logger.info('Deleting user: ' + uid);
 
     // Delete from Firebase Auth
     await auth().deleteUser(uid);
@@ -234,7 +234,7 @@ export async function deleteUser(uid: string) {
     };
 
   } catch (error: any) {
-    logger.error('Error deleting user: ' + (error.message || error));
+        logger.error('Error deleting user: ' + (error.message || error));
     
     let message = 'Failed to delete user';
     if (error.code === 'auth/user-not-found') {
@@ -266,7 +266,7 @@ export async function sendPasswordResetEmail(email: string) {
     };
 
   } catch (error: any) {
-    logger.error('Error sending password reset email: ' + (error.message || error));
+        logger.error('Error sending password reset email: ' + (error.message || error));
     
     let message = 'Failed to send password reset email';
     if (error.code === 'auth/user-not-found') {
@@ -282,7 +282,7 @@ export async function sendPasswordResetEmail(email: string) {
  */
 export async function getUserById(uid: string): Promise<UserProfile | null> {
   try {
-    logger.info('Fetching user by ID: ' + uid);
+        logger.info('Fetching user by ID: ' + uid);
 
     // Get from Firebase Auth
     const userRecord = await auth().getUser(uid);
@@ -309,7 +309,7 @@ export async function getUserById(uid: string): Promise<UserProfile | null> {
     };
 
   } catch (error: any) {
-    logger.error('Error fetching user by ID: ' + (error.message || error));
+        logger.error('Error fetching user by ID: ' + (error.message || error));
     
     if (error.code === 'auth/user-not-found') {
       return null;

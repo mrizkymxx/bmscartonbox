@@ -32,6 +32,11 @@ import {
 } from "@/components/ui/table";
 import { UserPlus, ChevronDown } from "lucide-react";
 import { UserForm } from "./user-form";
+import { EditUserForm } from "./edit-user-form";
+import { DeleteUserDialog } from "./delete-user-dialog";
+import { createColumns } from "./columns";
+import { UserProfile } from "@/lib/actions/users";
+import { useUserActions } from "@/hooks/use-user-actions";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -51,10 +56,35 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [showCreateForm, setShowCreateForm] = React.useState(false);
+  const [showEditForm, setShowEditForm] = React.useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [selectedUser, setSelectedUser] = React.useState<UserProfile | null>(null);
+
+  const { handleSendPasswordReset, handleToggleUserStatus } = useUserActions();
+
+  // Create columns with action handlers
+  const columnsWithActions = React.useMemo(() => {
+    if (data.length > 0 && typeof data[0] === 'object' && data[0] !== null && 'uid' in data[0]) {
+      // We know this is UserProfile data
+      return createColumns({
+        onEditUser: (user: UserProfile) => {
+          setSelectedUser(user);
+          setShowEditForm(true);
+        },
+        onDeleteUser: (user: UserProfile) => {
+          setSelectedUser(user);
+          setShowDeleteDialog(true);
+        },
+        onSendPasswordReset: handleSendPasswordReset,
+        onToggleUserStatus: handleToggleUserStatus,
+      }) as ColumnDef<TData, TValue>[];
+    }
+    return columns;
+  }, [data, columns, handleSendPasswordReset, handleToggleUserStatus]);
 
   const table = useReactTable({
     data,
-    columns,
+    columns: columnsWithActions,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -200,6 +230,38 @@ export function DataTable<TData, TValue>({
           // Refresh the page to show new user
           window.location.reload();
         }}
+      />
+
+      {/* Edit User Form Dialog */}
+      <EditUserForm 
+        open={showEditForm}
+        onClose={() => {
+          setShowEditForm(false);
+          setSelectedUser(null);
+        }}
+        onSuccess={() => {
+          setShowEditForm(false);
+          setSelectedUser(null);
+          // Refresh the page to show updated user
+          window.location.reload();
+        }}
+        user={selectedUser}
+      />
+
+      {/* Delete User Confirmation Dialog */}
+      <DeleteUserDialog 
+        open={showDeleteDialog}
+        onClose={() => {
+          setShowDeleteDialog(false);
+          setSelectedUser(null);
+        }}
+        onSuccess={() => {
+          setShowDeleteDialog(false);
+          setSelectedUser(null);
+          // Refresh the page to show updated list
+          window.location.reload();
+        }}
+        user={selectedUser}
       />
     </div>
   );

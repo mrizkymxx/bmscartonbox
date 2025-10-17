@@ -1,5 +1,4 @@
 import { getUsers } from "@/lib/actions/users";
-import { columns } from "@/components/users/columns";
 import { DataTable } from "@/components/users/data-table";
 import AppLayout from "@/components/layout/app-layout";
 
@@ -25,7 +24,7 @@ async function UsersContent() {
       {/* Users Table */}
       <div className="space-y-4">
         <DataTable 
-          columns={columns} 
+          columns={[]} // Will be generated dynamically
           data={users} 
           searchKey="email"
           searchPlaceholder="Search users by email..."
