@@ -218,14 +218,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Demo credentials info */}
-            <div className="bg-blue-50/10 border border-blue-500/20 rounded-md p-3 text-xs text-blue-400">
-              <div className="font-medium mb-1">Demo Credentials:</div>
-              <div>Admin: admin@bsmcartonbox.com</div>
-              <div>Viewer: viewer@bsmcartonbox.com</div>
-              <div className="mt-1 italic">Contact administrator for password</div>
-            </div>
-
             {/* Email input */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium text-foreground">
