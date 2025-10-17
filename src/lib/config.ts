@@ -34,7 +34,26 @@ console.log('🔍 Environment Variables Status:');
 console.log('Has all env vars:', hasAllEnvVars);
 console.log('Using fallback config:', !hasAllEnvVars);
 
-let config;
+// Define config type
+type Config = {
+  firebase: {
+    apiKey: string;
+    authDomain: string;
+    projectId: string;
+    storageBucket: string;
+    messagingSenderId: string;
+    appId: string;
+  };
+  blob: {
+    readWriteToken: string;
+  };
+  app: {
+    env: string;
+    url?: string;
+  };
+};
+
+let config: Config;
 
 if (hasAllEnvVars) {
   // Use environment variables

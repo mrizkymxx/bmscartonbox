@@ -16,7 +16,7 @@ interface LogEntry {
 }
 
 class Logger {
-  private isDevelopment = config.app.isDevelopment;
+  private isDevelopment = config.app.env === 'development';
 
   private formatMessage(entry: LogEntry): string {
     const { level, message, timestamp, context, error } = entry;
