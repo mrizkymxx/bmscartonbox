@@ -12,8 +12,18 @@ import {
   Settings,
   UserCog
 } from "lucide-react"
+import { useRole } from "@/components/auth/role-guard"
+import { UserRole } from "@/lib/types"
 
-const navItems = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: any;
+  description: string;
+  requiredRole?: UserRole;
+}
+
+const navItems: NavItem[] = [
     {
       href: "/",
       label: "Dashboard",
@@ -48,7 +58,8 @@ const navItems = [
       href: "/users",
       label: "User Management",
       icon: UserCog,
-      description: "Manage User Accounts"
+      description: "Manage User Accounts",
+      requiredRole: "admin" // Only admin can see this
     },
 ]
 
@@ -58,10 +69,21 @@ interface SidebarNavigationProps {
 
 export function SidebarNavigation({ onLinkClick }: SidebarNavigationProps) {
   const pathname = usePathname();
+  const { hasRole, loading } = useRole();
+
+  if (loading) {
+    return <div>Loading navigation...</div>;
+  }
+
+  // Filter nav items based on user role
+  const filteredNavItems = navItems.filter(item => {
+    if (!item.requiredRole) return true;
+    return hasRole(item.requiredRole);
+  });
 
   return (
     <nav className="flex items-center space-x-6 text-sm font-medium">
-      {navItems.map((item) => {
+      {filteredNavItems.map((item) => {
         const Icon = item.icon;
         const isActive = pathname === item.href;
 

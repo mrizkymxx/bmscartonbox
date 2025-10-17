@@ -3,6 +3,7 @@
 import { auth } from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { initializeFirebaseAdmin } from '@/lib/firebase-admin';
+import { requireAdmin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { DatabaseError } from '@/lib/errors';
 import { UserRole } from '@/lib/types';
@@ -166,9 +167,7 @@ export async function getUsers(pageSize: number = 10, nextPageToken?: string) {
  */
 export async function updateUser(uid: string, updateData: UpdateUserData) {
   try {
-        logger.info('Updating user: ' + uid);
-
-    // Update Firebase Auth user
+    logger.info('Updating user: ' + uid);    // Update Firebase Auth user
     const authUpdateData: any = {};
     if (updateData.displayName) {
       authUpdateData.displayName = updateData.displayName;
@@ -218,9 +217,7 @@ export async function updateUser(uid: string, updateData: UpdateUserData) {
  */
 export async function deleteUser(uid: string) {
   try {
-        logger.info('Deleting user: ' + uid);
-
-    // Delete from Firebase Auth
+    logger.info('Deleting user: ' + uid);    // Delete from Firebase Auth
     await auth().deleteUser(uid);
     
     // Delete from Firestore
