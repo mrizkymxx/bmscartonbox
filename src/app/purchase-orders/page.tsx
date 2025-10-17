@@ -4,6 +4,9 @@ import { columns } from "@/components/purchase-orders/columns";
 import { DataTable } from "@/components/purchase-orders/data-table";
 import AppLayout from "@/components/layout/app-layout";
 
+// Force dynamic rendering untuk authentication
+export const dynamic = 'force-dynamic';
+
 async function PurchaseOrdersContent() {
   const purchaseOrders = await getPurchaseOrders();
 

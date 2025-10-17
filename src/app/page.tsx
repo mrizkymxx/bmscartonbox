@@ -7,6 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+
+// Force dynamic rendering untuk authentication
+export const dynamic = 'force-dynamic';
 import {
   Table,
   TableBody,

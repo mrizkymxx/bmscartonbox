@@ -4,6 +4,9 @@ import { columns } from "@/components/deliveries/columns";
 import { DataTable } from "@/components/deliveries/data-table";
 import AppLayout from "@/components/layout/app-layout";
 
+// Force dynamic rendering untuk authentication
+export const dynamic = 'force-dynamic';
+
 async function DeliveriesContent() {
   const deliveries = await getDeliveries();
 

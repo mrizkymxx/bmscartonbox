@@ -4,6 +4,9 @@ import { columns } from "@/components/customers/columns";
 import { DataTable } from "@/components/customers/data-table";
 import AppLayout from "@/components/layout/app-layout";
 
+// Force dynamic rendering untuk authentication
+export const dynamic = 'force-dynamic';
+
 async function CustomersContent() {
   const customerResult = await getCustomers();
   const customers = customerResult.data;
