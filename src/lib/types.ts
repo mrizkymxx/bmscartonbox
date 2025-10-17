@@ -1,4 +1,7 @@
 
+// User roles for authentication and authorization
+export type UserRole = 'admin' | 'editor' | 'viewer';
+
 // Re-export types from schemas for backward compatibility
 export type { 
   CustomerEntity as Customer, 

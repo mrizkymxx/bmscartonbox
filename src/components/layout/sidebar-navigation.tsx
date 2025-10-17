@@ -9,7 +9,8 @@ import {
   FileText,
   Package,
   Truck,
-  Settings
+  Settings,
+  UserCog
 } from "lucide-react"
 
 const navItems = [
@@ -42,6 +43,12 @@ const navItems = [
       label: "Deliveries",
       icon: Truck,
       description: "Delivery Management"
+    },
+    {
+      href: "/users",
+      label: "User Management",
+      icon: UserCog,
+      description: "Manage User Accounts"
     },
 ]
 
