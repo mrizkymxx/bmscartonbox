@@ -22,8 +22,7 @@
     "test:coverage": "jest --coverage",
     "clean": "rimraf .next out dist",
     "analyze": "cross-env ANALYZE=true next build",
-    "preview": "next build && next start",
-    "postinstall": "prisma generate || true"
+    "preview": "next build && next start"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.14.1",
