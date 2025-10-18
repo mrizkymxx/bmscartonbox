@@ -8,8 +8,9 @@ export const APP_CONFIG = {
 
 // Database collection names
 export const COLLECTIONS = {
+  USERS: 'users',
   CUSTOMERS: 'customers',
-  PURCHASE_ORDERS: 'purchaseOrders',
+  PURCHASE_ORDERS: 'purchase_orders',
   DELIVERIES: 'deliveries',
   PRODUCTION: 'production',
 } as const;

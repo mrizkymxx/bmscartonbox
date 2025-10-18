@@ -216,7 +216,7 @@ export async function upsertCustomer(
 // DELETE
 export async function deleteCustomer(id: string) {
   try {
-    await adminDb.collection("customers").doc(id).delete();
+    await adminDb.collection(COLLECTIONS.CUSTOMERS).doc(id).delete();
     revalidatePath("/customers");
   } catch (error) {
     console.error("Error deleting customer: ", error);

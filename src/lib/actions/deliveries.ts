@@ -3,13 +3,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { COLLECTIONS } from "@/lib/constants";
 import { adminDb } from "@/lib/firebase-admin";
 import { Delivery, DeliveryItem, PurchaseOrder, ReadyToShipItem, OrderItem } from "../types";
 
 // READ Deliveries
 export async function getDeliveries(): Promise<Delivery[]> {
   try {
-    const snapshot = await adminDb.collection("deliveries")
+    const snapshot = await adminDb.collection(COLLECTIONS.DELIVERIES)
       .orderBy("deliveryDate", "desc")
       .get();
 
@@ -50,14 +51,14 @@ export async function getReadyToShipItems(
     let snapshot;
     if (poId) {
       // If a specific PO ID is provided, fetch only that PO
-      const poDoc = await adminDb.collection("purchase_orders").doc(poId).get();
+      const poDoc = await adminDb.collection(COLLECTIONS.PURCHASE_ORDERS).doc(poId).get();
       if (!poDoc.exists || poDoc.data()?.customerId !== customerId) {
         return [];
       }
-      snapshot = await adminDb.collection("purchase_orders").where("__name__", "==", poId).get();
+      snapshot = await adminDb.collection(COLLECTIONS.PURCHASE_ORDERS).where("__name__", "==", poId).get();
     } else {
       // Otherwise, fetch all open POs for the customer
-      snapshot = await adminDb.collection("purchase_orders")
+      snapshot = await adminDb.collection(COLLECTIONS.PURCHASE_ORDERS)
         .where("customerId", "==", customerId)
         .where("status", "==", "Open")
         .get();
@@ -110,12 +111,12 @@ export async function createDelivery(data: Omit<Delivery, "id">) {
         return acc;
       }, {} as Record<string, typeof data.items>);
 
-      // 2. READ ALL PURCHASE ORDERS FIRST (Firebase requirement: all reads before writes)
+      // 1. READ ALL DOCUMENTS FIRST (Firebase requirement: all reads before writes)
       const poRefs: { [poId: string]: any } = {};
       const poData: { [poId: string]: PurchaseOrder } = {};
       
       for (const poId in itemsByPo) {
-        const poRef = adminDb.collection("purchase_orders").doc(poId);
+        const poRef = adminDb.collection(COLLECTIONS.PURCHASE_ORDERS).doc(poId);
         poRefs[poId] = poRef;
         const poDoc = await transaction.get(poRef);
         if (!poDoc.exists) {
@@ -139,7 +140,7 @@ export async function createDelivery(data: Omit<Delivery, "id">) {
           finishedSize: item.finishedSize || null,
         })),
       };
-      const deliveryRef = adminDb.collection("deliveries").doc();
+      const deliveryRef = adminDb.collection(COLLECTIONS.DELIVERIES).doc();
       transaction.set(deliveryRef, deliveryData);
 
       // 4. Update each Purchase Order
@@ -192,7 +193,7 @@ export async function deleteDelivery(id: string) {
     // Use transaction for atomic operations
     await adminDb.runTransaction(async (transaction) => {
       // 1. READ ALL DOCUMENTS FIRST (Firebase requirement: all reads before writes)
-      const deliveryRef = adminDb.collection("deliveries").doc(id);
+      const deliveryRef = adminDb.collection(COLLECTIONS.DELIVERIES).doc(id);
       const deliveryDoc = await transaction.get(deliveryRef);
       
       if (!deliveryDoc.exists) {
@@ -211,7 +212,7 @@ export async function deleteDelivery(id: string) {
       const poData: { [poId: string]: PurchaseOrder } = {};
       
       for (const poId in itemsByPo) {
-        const poRef = adminDb.collection("purchase_orders").doc(poId);
+        const poRef = adminDb.collection(COLLECTIONS.PURCHASE_ORDERS).doc(poId);
         poRefs[poId] = poRef;
         const poDoc = await transaction.get(poRef);
         if (!poDoc.exists) {

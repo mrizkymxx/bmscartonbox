@@ -7,6 +7,7 @@ import { requireAdmin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { DatabaseError } from '@/lib/errors';
 import { UserRole } from '@/lib/types';
+import { COLLECTIONS } from '@/lib/constants';
 
 // Initialize Firebase Admin
 initializeFirebaseAdmin();
@@ -70,7 +71,7 @@ export async function createUser(userData: CreateUserData) {
       createdAt: new Date(),
     };
 
-    await db.collection('users').doc(userRecord.uid).set(userProfile);
+    await db.collection(COLLECTIONS.USERS).doc(userRecord.uid).set(userProfile);
 
     logger.info('User created successfully', { uid: userRecord.uid });
     
@@ -116,7 +117,7 @@ export async function getUsers(pageSize: number = 10, nextPageToken?: string) {
     
     for (const userRecord of listUsersResult.users) {
       try {
-        const userDoc = await db.collection('users').doc(userRecord.uid).get();
+        const userDoc = await db.collection(COLLECTIONS.USERS).doc(userRecord.uid).get();
         const userData = userDoc.data();
         
         if (userData) {
@@ -190,7 +191,7 @@ export async function updateUser(uid: string, updateData: UpdateUserData) {
     firestoreUpdateData.updatedAt = new Date();
 
     if (Object.keys(firestoreUpdateData).length > 0) {
-      await db.collection('users').doc(uid).update(firestoreUpdateData);
+      await db.collection(COLLECTIONS.USERS).doc(uid).update(firestoreUpdateData);
     }
 
     logger.info('User updated successfully: ' + uid);
@@ -221,7 +222,7 @@ export async function deleteUser(uid: string) {
     await auth().deleteUser(uid);
     
     // Delete from Firestore
-    await db.collection('users').doc(uid).delete();
+    await db.collection(COLLECTIONS.USERS).doc(uid).delete();
 
     logger.info('User deleted successfully: ' + uid);
     
@@ -285,7 +286,7 @@ export async function getUserById(uid: string): Promise<UserProfile | null> {
     const userRecord = await auth().getUser(uid);
     
     // Get from Firestore
-    const userDoc = await db.collection('users').doc(uid).get();
+    const userDoc = await db.collection(COLLECTIONS.USERS).doc(uid).get();
     const userData = userDoc.data();
 
     if (!userData) {

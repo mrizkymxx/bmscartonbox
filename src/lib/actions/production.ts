@@ -4,12 +4,13 @@
 import { revalidatePath } from "next/cache";
 import { adminDb } from "@/lib/firebase-admin";
 import { PurchaseOrder, ProductionItem, Customer, OrderItemStatus } from "../types";
+import { COLLECTIONS } from "@/lib/constants";
 
 // READ Production Items
 export async function getProductionItems(): Promise<ProductionItem[]> {
   try {
     // Query all purchase orders using Firebase Admin SDK
-    const snapshot = await adminDb.collection("purchase_orders").get();
+    const snapshot = await adminDb.collection(COLLECTIONS.PURCHASE_ORDERS).get();
 
     if (snapshot.empty) {
       return [];
@@ -54,7 +55,7 @@ export async function updateProductionItem(
   newStatus?: OrderItemStatus
 ) {
   try {
-    const poRef = adminDb.collection("purchase_orders").doc(poId);
+    const poRef = adminDb.collection(COLLECTIONS.PURCHASE_ORDERS).doc(poId);
     const poSnapshot = await poRef.get();
 
     if (!poSnapshot.exists) {

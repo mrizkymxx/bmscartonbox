@@ -3,12 +3,13 @@
 
 import { revalidatePath } from "next/cache";
 import { adminDb } from "@/lib/firebase-admin";
+import { COLLECTIONS } from "@/lib/constants";
 import { PurchaseOrder } from "../types";
 
 // READ
 export async function getPurchaseOrders(): Promise<PurchaseOrder[]> {
   try {
-    const snapshot = await adminDb.collection("purchase_orders")
+    const snapshot = await adminDb.collection(COLLECTIONS.PURCHASE_ORDERS)
       .orderBy("orderDate", "desc")
       .get();
     
@@ -53,10 +54,10 @@ export async function upsertPurchaseOrder(
 
     if (id) {
       // Update existing PO
-      await adminDb.collection("purchase_orders").doc(id).update(dataToSave);
+      await adminDb.collection(COLLECTIONS.PURCHASE_ORDERS).doc(id).update(dataToSave);
     } else {
       // Create new PO
-      await adminDb.collection("purchase_orders").add(dataToSave);
+      await adminDb.collection(COLLECTIONS.PURCHASE_ORDERS).add(dataToSave);
     }
     revalidatePath("/purchase-orders");
     revalidatePath("/"); // Also revalidate dashboard for recent POs
@@ -70,7 +71,7 @@ export async function upsertPurchaseOrder(
 // DELETE
 export async function deletePurchaseOrder(id: string) {
   try {
-    await adminDb.collection("purchase_orders").doc(id).delete();
+    await adminDb.collection(COLLECTIONS.PURCHASE_ORDERS).doc(id).delete();
     revalidatePath("/purchase-orders");
     revalidatePath("/");
     revalidatePath("/production");
