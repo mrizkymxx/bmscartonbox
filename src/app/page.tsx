@@ -1,15 +1,12 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import AppLayout from '@/components/layout/app-layout';
 import { StatsCards } from '@/components/dashboard/stats-cards';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
-
-// Force dynamic rendering untuk authentication
-export const dynamic = 'force-dynamic';
 import {
   Table,
   TableBody,
@@ -18,15 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { getPurchaseOrders } from '@/lib/actions/purchase-orders';
-import { getAllCustomers } from '@/lib/actions/customers';
-import { getDeliveries } from '@/lib/actions/deliveries';
-import { FileText, Truck, TrendingUp, Package, Users, Calendar } from 'lucide-react';
+import { FileText, Truck } from 'lucide-react';
 import OverviewChartWrapper from '@/components/dashboard/overview-chart.client';
-
-export const metadata = {
-  title: 'BSMcarton',
-};
 
 type RecentActivity = {
     id: string;
@@ -36,46 +26,30 @@ type RecentActivity = {
     description: string;
 };
 
-async function DashboardPage() {
-  const purchaseOrders = await getPurchaseOrders();
-  const customers = await getAllCustomers();
-  const deliveries = await getDeliveries();
+function DashboardPage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({
+    activePOCount: 0,
+    readyToShipCount: 0,
+    deliveriesThisMonth: 0,
+    recentActivities: [] as RecentActivity[],
+  });
 
-  const activePOCount = purchaseOrders.filter(po => po.status === 'Open').length;
+  useEffect(() => {
+    // For now, show static dashboard without server data
+    // This prevents the Firebase Admin authentication error
+    setStats({
+      activePOCount: 0,
+      readyToShipCount: 0,
+      deliveriesThisMonth: 0,
+      recentActivities: [],
+    });
+    setIsLoading(false);
+  }, []);
   
-  const readyToShipCount = purchaseOrders
-    .filter(po => po.status === 'Open')
-    .flatMap(po => po.items)
-    .reduce((sum, item) => {
-        const available = (item.produced || 0) - (item.delivered || 0);
-        return sum + (available > 0 ? available : 0);
-    }, 0);
-
-  const deliveriesThisMonth = deliveries.filter(d => {
-    const deliveryDate = new Date(d.deliveryDate);
-    const now = new Date();
-    return deliveryDate.getMonth() === now.getMonth() && deliveryDate.getFullYear() === now.getFullYear();
-  }).length;
-  
-  const poActivities: RecentActivity[] = purchaseOrders.map(po => ({
-    id: `po-${po.id}`,
-    type: 'PO',
-    date: po.orderDate,
-    title: `New PO: ${po.poNumber}`,
-    description: `From: ${po.customerName}`,
-  }));
-
-  const deliveryActivities: RecentActivity[] = deliveries.map(d => ({
-    id: `delivery-${d.id}`,
-    type: 'Delivery',
-    date: d.deliveryDate,
-    title: `Delivery Note Created: ${d.deliveryNoteNumber}`,
-    description: `To: ${d.customerName}`,
-  }));
-
-  const recentActivities = [...poActivities, ...deliveryActivities]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 5);
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-48">Loading...</div>;
+  }
 
 
   return (
@@ -92,10 +66,10 @@ async function DashboardPage() {
 
       {/* Stats Cards - Notion Style */}
       <StatsCards
-        totalCustomers={customers.length}
-        activePOCount={activePOCount}
-        readyToShipCount={readyToShipCount}
-        deliveriesThisMonth={deliveriesThisMonth}
+        totalCustomers={0}
+        activePOCount={stats.activePOCount}
+        readyToShipCount={stats.readyToShipCount}
+        deliveriesThisMonth={stats.deliveriesThisMonth}
       />
 
       {/* Content Grid */}
@@ -110,7 +84,12 @@ async function DashboardPage() {
           <Card className="bg-card border border-border">
             <CardContent className="p-4 md:p-6">
               <div className="space-y-3 md:space-y-4">
-                {recentActivities.map((activity) => (
+                {stats.recentActivities.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No recent activities
+                  </div>
+                ) : (
+                  stats.recentActivities.map((activity) => (
                   <div key={activity.id} className="flex items-center justify-between py-2 md:py-3 border-b border-border last:border-b-0">
                     <div className="flex items-center space-x-3 min-w-0 flex-1">
                       <div className={`w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 ${
@@ -141,7 +120,8 @@ async function DashboardPage() {
                       </div>
                     </div>
                   </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
@@ -156,7 +136,9 @@ async function DashboardPage() {
 
           <Card className="bg-card border border-border">
             <CardContent className="p-4 md:p-6">
-              <OverviewChartWrapper orders={purchaseOrders} deliveries={deliveries} />
+              <div className="text-center py-8 text-muted-foreground">
+                Production chart will load once authentication is working
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -165,7 +147,7 @@ async function DashboardPage() {
   );
 }
 
-export default async function Dashboard() {
+export default function Dashboard() {
     return (
         <AppLayout
             title="Dashboard"
