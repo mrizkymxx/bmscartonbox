@@ -29,9 +29,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Firebase
+# Firebase (keep firestore.rules for deployment)
 firebase-admin-key.json
-firestore.rules
 .pnpm-debug.log*
 
 # vercel
@@ -41,9 +40,30 @@ firestore.rules
 *.tsbuildinfo
 next-env.d.ts
 
-.genkit/*
+# Environment files
 .env.local
+.env*.local
 
-# firebase
+# Development files
+debug-*.js
+test-*.js
+restore-*.js
+setup-*.js
+deploy.sh
+*.md
+!README.md
+
+# IDE and editor files
+.vscode/
+.idea/
+.idx/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+.genkit/*
+
+# Firebase debug logs
 firebase-debug.log
 firestore-debug.log
