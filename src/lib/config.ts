@@ -55,31 +55,36 @@ type Config = {
 
 let config: Config;
 
-if (hasAllEnvVars) {
-  // Use environment variables
-  console.log('✅ Using environment variables');
-  const env = envSchema.parse(process.env);
-  
-  config = {
-    firebase: {
-      apiKey: env.NEXT_PUBLIC_FIREBASE_API_KEY,
-      authDomain: env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      projectId: env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      storageBucket: env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-      appId: env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    },
-    blob: {
-      readWriteToken: env.BLOB_READ_WRITE_TOKEN,
-    },
-    app: {
-      env: env.NODE_ENV,
-      url: env.NEXT_PUBLIC_APP_URL,
-    },
-  };
-} else {
-  // Use fallback configuration
-  console.log('⚠️ Using fallback configuration (env vars not found)');
+try {
+  if (hasAllEnvVars) {
+    // Use environment variables
+    console.log('✅ Using environment variables');
+    const env = envSchema.parse(process.env);
+    
+    config = {
+      firebase: {
+        apiKey: env.NEXT_PUBLIC_FIREBASE_API_KEY,
+        authDomain: env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+        projectId: env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        storageBucket: env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+        appId: env.NEXT_PUBLIC_FIREBASE_APP_ID,
+      },
+      blob: {
+        readWriteToken: env.BLOB_READ_WRITE_TOKEN,
+      },
+      app: {
+        env: env.NODE_ENV,
+        url: env.NEXT_PUBLIC_APP_URL,
+      },
+    };
+  } else {
+    // Use fallback configuration
+    console.log('⚠️ Using fallback configuration (env vars not found)');
+    config = fallbackConfig;
+  }
+} catch (error) {
+  console.error('❌ Configuration error, using fallback:', error);
   config = fallbackConfig;
 }
 
